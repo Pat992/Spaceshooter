@@ -1,20 +1,21 @@
 import 'package:flutter/material.dart';
 
-class Player with ChangeNotifier {
-  double _posX;
-  double _posY;
-  double _radius;
+class PlayerProvider with ChangeNotifier {
+  double posX;
+  double posY;
+  double maxY;
+  double radius;
 
-  Player(this._posY, this._posX, this._radius);
-
-  moveY(double distance) {
-    _posY += distance;
-    notifyListeners();
+  PlayerProvider() {
+    posX = 0;
+    posY = 0;
+    maxY = 0;
+    radius = 10;
   }
 
-  get posY => _posY;
-
-  get posX => _posX;
-
-  get radius => _radius;
+  moveY(double distance) {
+    if (posY >= maxY - radius || posY <= 0) return;
+    posY += distance;
+    notifyListeners();
+  }
 }

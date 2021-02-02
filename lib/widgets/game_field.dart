@@ -1,21 +1,29 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:sensors/sensors.dart';
-import 'file:///D:/m335/spaceshooter/lib/providers/enemy_provider.dart';
 import 'package:spaceshooter/helper/painter.dart';
-import 'file:///D:/m335/spaceshooter/lib/providers/player_provider.dart';
+import 'package:spaceshooter/providers/enemy_provider.dart';
+import 'package:spaceshooter/providers/player_provider.dart';
 
 class GameField extends StatefulWidget {
-  Player _player;
-  Enemy _enemy;
   BuildContext _ctx;
   Function _reduceLives;
   bool _isGameOver;
+  PlayerProvider _player;
+  EnemyProvider _enemy;
 
   GameField(this._isGameOver, this._reduceLives, this._ctx) {
-    _enemy = Enemy(MediaQuery.of(_ctx).size.width / 2, 0, 50);
-    _player = Player(MediaQuery.of(_ctx).size.width / 2,
-        MediaQuery.of(_ctx).size.height - 200, 50);
+    _player = Provider.of<PlayerProvider>(_ctx, listen: false);
+    _enemy = Provider.of<EnemyProvider>(_ctx, listen: false);
+
+    _player.posY = MediaQuery.of(_ctx).size.width / 2;
+    _player.posX = MediaQuery.of(_ctx).size.height - 200;
+    _player.maxY = MediaQuery.of(_ctx).size.width - _player.radius;
+
+    _enemy.posY = MediaQuery.of(_ctx).size.width / 2;
+    _enemy.posX = -_enemy.radius;
+    _enemy.maxX = MediaQuery.of(_ctx).size.height + _enemy.radius;
   }
   @override
   _GameFieldState createState() => _GameFieldState();
@@ -23,7 +31,6 @@ class GameField extends StatefulWidget {
 
 class _GameFieldState extends State<GameField> {
   StreamSubscription<AccelerometerEvent> accelerometerStream;
-
   @override
   void initState() {
     super.initState();
@@ -43,7 +50,7 @@ class _GameFieldState extends State<GameField> {
   Widget build(BuildContext context) {
     return CustomPaint(
       size: MediaQuery.of(context).size,
-      painter: Painter(widget._player, widget._enemy),
+      painter: Painter(context),
     );
   }
 }

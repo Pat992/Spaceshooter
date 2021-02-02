@@ -15,8 +15,8 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (ctx) => PreferenceProvider()),
-        ChangeNotifierProvider(create: (ctx) => Player(0, 0, 10)),
-        ChangeNotifierProvider(create: (ctx) => Enemy(0, 0, 10))
+        ChangeNotifierProvider(create: (ctx) => PlayerProvider()),
+        ChangeNotifierProvider(create: (ctx) => EnemyProvider())
       ],
       child: MainScreen(),
     );

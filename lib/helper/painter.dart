@@ -1,12 +1,17 @@
 import 'package:flutter/material.dart';
-import 'file:///D:/m335/spaceshooter/lib/providers/enemy_provider.dart';
-import 'file:///D:/m335/spaceshooter/lib/providers/player_provider.dart';
+import 'package:provider/provider.dart';
+import 'package:spaceshooter/providers/enemy_provider.dart';
+import 'package:spaceshooter/providers/player_provider.dart';
 
 class Painter extends CustomPainter {
-  Player _player;
-  Enemy _enemy;
+  BuildContext _ctx;
+  PlayerProvider _player;
+  EnemyProvider _enemy;
 
-  Painter(this._player, this._enemy);
+  Painter(this._ctx) {
+    _player = Provider.of<PlayerProvider>(_ctx);
+    _enemy = Provider.of<EnemyProvider>(_ctx);
+  }
 
   @override
   void paint(Canvas canvas, Size size) {

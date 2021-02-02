@@ -1,20 +1,23 @@
 import 'package:flutter/material.dart';
 
-class Enemy with ChangeNotifier {
-  double _posX;
-  double _posY;
-  double _radius;
+class EnemyProvider with ChangeNotifier {
+  double posX;
+  double posY;
+  double maxX;
+  double radius;
 
-  Enemy(this._posY, this._posX, this._radius);
-
-  moveX(double distance) {
-    _posX += distance;
-    notifyListeners();
+  EnemyProvider() {
+    posY = 0;
+    posX = 0;
+    radius = 10;
   }
 
-  get posY => _posY;
-
-  get posX => _posX;
-
-  get radius => _radius;
+  moveX(double distance) {
+    if (posX >= maxX) {
+      posX = -radius;
+    } else {
+      posX += distance;
+    }
+    notifyListeners();
+  }
 }
