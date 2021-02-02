@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:spaceshooter/screens/main_screen.dart';
+import 'package:spaceshooter/screens/play_screen.dart';
+import 'package:spaceshooter/screens/score_screen.dart';
 
 void main() {
   runApp(MyApp());
@@ -15,6 +17,11 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
       ),
       home: MainScreen(),
+      routes: {
+        MainScreen.ROUTE_NAME: (ctx) => MainScreen(),
+        PlayScreen.ROUTE_NAME: (ctx) => PlayScreen(),
+        ScoreScreen.ROUTE_NAME: (ctx) => ScoreScreen()
+      },
     );
   }
 }
