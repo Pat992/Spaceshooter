@@ -18,7 +18,6 @@ class MyApp extends StatelessWidget {
       ),
       home: MainScreen(),
       routes: {
-        MainScreen.ROUTE_NAME: (ctx) => MainScreen(),
         PlayScreen.ROUTE_NAME: (ctx) => PlayScreen(),
         ScoreScreen.ROUTE_NAME: (ctx) => ScoreScreen()
       },
