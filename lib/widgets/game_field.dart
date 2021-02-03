@@ -5,6 +5,7 @@ import 'package:sensors/sensors.dart';
 import 'package:spaceshooter/helper/painter.dart';
 import 'package:spaceshooter/providers/enemy_provider.dart';
 import 'package:spaceshooter/providers/player_provider.dart';
+import 'package:vibration/vibration.dart';
 
 class GameField extends StatefulWidget {
   BuildContext _ctx;
@@ -29,21 +30,66 @@ class GameField extends StatefulWidget {
   _GameFieldState createState() => _GameFieldState();
 }
 
-class _GameFieldState extends State<GameField> {
+class _GameFieldState extends State<GameField> with TickerProviderStateMixin {
   StreamSubscription<AccelerometerEvent> accelerometerStream;
+  Animation<double> _animation;
+  AnimationController _controller;
+
   @override
   void initState() {
     super.initState();
+    _controller = AnimationController(
+        vsync: this, duration: Duration(milliseconds: 15000));
+    _controller.forward();
+    _controller.addStatusListener((status) {
+      if (status == AnimationStatus.completed) {
+        _controller.reset();
+      }
+    });
+    _animation =
+        Tween(begin: -50.0, end: MediaQuery.of(widget._ctx).size.height + 50)
+            .animate(_controller)
+              ..addListener(() {
+                setState(() {
+                  //print(_animation.value);
+                  widget._enemy.moveX(1);
+                  checkForCollision();
+                });
+              });
     accelerometerStream = accelerometerEvents.listen((event) {
-      widget._player.moveY(event.x);
-      widget._enemy.moveX(10);
+      widget._player.moveY(0);
     });
   }
 
   @override
   void dispose() {
     accelerometerStream.cancel();
+    _controller.dispose();
     super.dispose();
+  }
+
+  void checkForCollision() {
+    double playerStartX = widget._player.posX - widget._player.radius;
+    double playerEndX = widget._player.posX + widget._player.radius;
+    double playerStartY = widget._player.posY - widget._player.radius;
+    double playerEndY = widget._player.posY + widget._player.radius;
+
+    double enemyStartX =
+        widget._enemy.posX - widget._enemy.radius + (widget._enemy.radius / 2);
+    double enemyEndX =
+        widget._enemy.posX + widget._enemy.radius - (widget._enemy.radius / 2);
+    double enemyStartY =
+        widget._enemy.posY - widget._enemy.radius + (widget._enemy.radius / 2);
+    double enemyEndY =
+        widget._enemy.posY + widget._enemy.radius - (widget._enemy.radius / 2);
+
+    if (enemyStartY <= playerEndY &&
+        enemyEndY >= playerStartY &&
+        enemyStartX <= playerEndX &&
+        enemyEndX >= playerStartX) {
+      Vibration.vibrate(duration: 100);
+      widget._reduceLives();
+    }
   }
 
   @override

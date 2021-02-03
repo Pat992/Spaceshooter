@@ -14,7 +14,7 @@ class _PlayScreenState extends State<PlayScreen> {
 
   void loseLife() {
     setState(() {
-      !_isGameOver ?? --_lives;
+      --_lives;
       if (_lives <= 0) {
         _isGameOver = true;
       }
