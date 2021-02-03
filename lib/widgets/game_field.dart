@@ -7,14 +7,16 @@ import 'package:spaceshooter/helper/game_helper.dart';
 import 'package:spaceshooter/providers/enemy_provider.dart';
 import 'package:spaceshooter/providers/player_provider.dart';
 import 'package:spaceshooter/providers/preferences_provider.dart';
+import 'package:spaceshooter/screens/play_screen.dart';
 import 'package:spaceshooter/screens/score_screen.dart';
 import 'package:vibration/vibration.dart';
 
 class GameField extends StatefulWidget {
   final BuildContext _ctx;
   final Function _reduceLives;
+  final Function _forceRedraw;
 
-  GameField(this._reduceLives, this._ctx);
+  GameField(this._reduceLives, this._ctx, this._forceRedraw);
 
   @override
   _GameFieldState createState() => _GameFieldState();
@@ -27,13 +29,19 @@ class _GameFieldState extends State<GameField> with TickerProviderStateMixin {
   Animation<double> _animation;
   AnimationController _controller;
   PlayerHelper _playerMovement = PlayerHelper();
-  double _playerMove = 0;
-  bool _isGameOver = false;
-  int _score = 0;
-  double _speed = 1;
+  double _playerMove;
+  bool _isGameOver;
+  int _score;
+  double _speed;
 
   @override
   void initState() {
+    super.initState();
+    _playerMove = 0;
+    _score = 0;
+    _speed = 1;
+    _isGameOver = false;
+
     _player = Provider.of<PlayerProvider>(widget._ctx, listen: false);
     _enemy = Provider.of<EnemyProvider>(widget._ctx, listen: false);
 
@@ -47,7 +55,6 @@ class _GameFieldState extends State<GameField> with TickerProviderStateMixin {
     _enemy.posY =
         _enemy.calculateRandomPos(min: _enemy.radius, max: _enemy.maxY);
 
-    super.initState();
     _controller =
         AnimationController(vsync: this, duration: Duration(hours: 500));
     _controller.forward();
@@ -67,7 +74,7 @@ class _GameFieldState extends State<GameField> with TickerProviderStateMixin {
                   if (_isGameOver) {
                     accelerometerStream.pause();
                     _controller.stop();
-                    showGameOverDialog(widget._ctx, _score);
+                    showGameOverDialog();
                   }
                 });
               });
@@ -111,39 +118,72 @@ class _GameFieldState extends State<GameField> with TickerProviderStateMixin {
       painter: Painter(context),
     );
   }
-}
 
-Future<Widget> showGameOverDialog(BuildContext context, int score) {
-  PreferenceProvider _prefs =
-      Provider.of<PreferenceProvider>(context, listen: false);
+  Future<Widget> showGameOverDialog() {
+    PreferenceProvider _prefs =
+        Provider.of<PreferenceProvider>(context, listen: false);
 
-  final _scoreController = TextEditingController();
-  return showDialog(
-    context: context,
-    builder: (context) => AlertDialog(
-      title: Text('Game Over'),
-      content: Text('New Score, input your name:'),
-      actions: <Widget>[
-        Container(
-          width: 200,
-          child: TextField(
-            controller: _scoreController,
-          ),
-        ),
-        TextButton.icon(
-          onPressed: () {
-            if (_scoreController.text.trim().isEmpty) return;
-            _prefs.addScore(name: _scoreController.text, newScore: score);
-            Navigator.of(context).popUntil((route) => route.isFirst);
-            Navigator.pushNamed(context, ScoreScreen.ROUTE_NAME);
-          },
-          icon: Icon(Icons.save),
-          label: Text(
-            'Save',
-            style: TextStyle(color: Colors.black),
-          ),
-        )
-      ],
-    ),
-  );
+    final _scoreController = TextEditingController();
+    return _score > _prefs.getLowestScore()
+        ? showDialog(
+            context: context,
+            builder: (context) => AlertDialog(
+              title: Text('Game Over'),
+              content: Text('New Score, input your name:'),
+              actions: <Widget>[
+                Container(
+                  width: 200,
+                  child: TextField(
+                    controller: _scoreController,
+                  ),
+                ),
+                TextButton.icon(
+                  onPressed: () {
+                    if (_scoreController.text.trim().isEmpty) return;
+                    _prefs.addScore(
+                        name: _scoreController.text, newScore: _score);
+                    Navigator.of(context).popUntil((route) => route.isFirst);
+                    Navigator.pushNamed(context, ScoreScreen.ROUTE_NAME);
+                  },
+                  icon: Icon(Icons.save),
+                  label: Text(
+                    'Save',
+                    style: TextStyle(color: Colors.black),
+                  ),
+                )
+              ],
+            ),
+          )
+        : showDialog(
+            context: context,
+            builder: (context) => AlertDialog(
+              title: Text('Game Over'),
+              content: Text('Play Again?'),
+              actions: <Widget>[
+                ElevatedButton.icon(
+                  onPressed: () {
+                    // TODO: not a great way to reload page...
+                    Navigator.of(context).popUntil((route) => route.isFirst);
+                    Navigator.pushNamed(context, PlayScreen.ROUTE_NAME);
+                  },
+                  icon: Icon(Icons.save),
+                  label: Text(
+                    'OK',
+                    style: TextStyle(color: Colors.black),
+                  ),
+                ),
+                TextButton.icon(
+                  onPressed: () {
+                    Navigator.of(context).popUntil((route) => route.isFirst);
+                  },
+                  icon: Icon(Icons.save),
+                  label: Text(
+                    'Cancel',
+                    style: TextStyle(color: Colors.black),
+                  ),
+                )
+              ],
+            ),
+          );
+  }
 }

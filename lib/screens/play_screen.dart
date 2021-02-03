@@ -9,8 +9,23 @@ class PlayScreen extends StatefulWidget {
 }
 
 class _PlayScreenState extends State<PlayScreen> {
-  int _lives = 3;
-  bool _isGameOver = false;
+  int _lives;
+  bool _isGameOver;
+
+  @override
+  void initState() {
+    super.initState();
+    _lives = 3;
+    _isGameOver = false;
+  }
+
+  void forceRedraw() {
+    print('restart');
+    setState(() {
+      _lives = 3;
+      _isGameOver = false;
+    });
+  }
 
   bool loseLife() {
     setState(() {
@@ -33,7 +48,7 @@ class _PlayScreenState extends State<PlayScreen> {
           _lives >= 1 ? Icon(Icons.favorite) : Icon(Icons.favorite_border),
         ],
       ),
-      body: GameField(loseLife, context),
+      body: GameField(loseLife, context, forceRedraw),
     );
   }
 }
