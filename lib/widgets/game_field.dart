@@ -48,6 +48,7 @@ class _GameFieldState extends State<GameField> with TickerProviderStateMixin {
     _player.posY = MediaQuery.of(widget._ctx).size.width / 2;
     _player.posX = MediaQuery.of(widget._ctx).size.height - 200;
     _player.maxY = MediaQuery.of(widget._ctx).size.width - _player.radius;
+    _player.maxX = MediaQuery.of(widget._ctx).size.height + _player.radius;
 
     _enemy.posX = -_enemy.radius;
     _enemy.maxX = MediaQuery.of(widget._ctx).size.height + _enemy.radius;
@@ -70,6 +71,7 @@ class _GameFieldState extends State<GameField> with TickerProviderStateMixin {
                 setState(() {
                   _enemy.moveX(_speed);
                   _player.moveY(_playerMove);
+                  _player.moveBullet();
                   checkForCollision();
                   if (_isGameOver) {
                     accelerometerStream.pause();
@@ -113,9 +115,12 @@ class _GameFieldState extends State<GameField> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    return CustomPaint(
-      size: MediaQuery.of(context).size,
-      painter: Painter(context),
+    return GestureDetector(
+      onTap: _player.shoot,
+      child: CustomPaint(
+        size: MediaQuery.of(context).size,
+        painter: Painter(context),
+      ),
     );
   }
 
