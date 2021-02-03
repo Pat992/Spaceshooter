@@ -53,7 +53,7 @@ class _GameFieldState extends State<GameField> with TickerProviderStateMixin {
     _enemy.maxX = MediaQuery.of(widget._ctx).size.height + _enemy.radius;
     _enemy.maxY = MediaQuery.of(widget._ctx).size.width - _enemy.radius;
     _enemy.posY =
-        _enemy.calculateRandomPos(min: _enemy.radius, max: _enemy.maxY);
+        _enemy.calculateRandomNum(min: _enemy.radius, max: _enemy.maxY);
 
     _controller =
         AnimationController(vsync: this, duration: Duration(hours: 500));
@@ -107,7 +107,7 @@ class _GameFieldState extends State<GameField> with TickerProviderStateMixin {
         enemyEndX >= playerStartX) {
       Vibration.vibrate(duration: 100);
       _isGameOver = widget._reduceLives();
-      _enemy.posX = -50;
+      _enemy.resetPosition();
     }
   }
 
