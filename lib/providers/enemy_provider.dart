@@ -8,17 +8,18 @@ class EnemyProvider with ChangeNotifier {
   double radius;
   int lives;
   int points;
-  int maxSpeed;
+  double maxSpeed;
   double spawnRate;
-  List<Enemy> enemies = [];
+  List<Enemy> enemies;
 
   EnemyProvider() {
-    spawnRate = 150;
+    startEnemiesPosition();
   }
 
-  void spawnEnemy(double radius, double posX, double posY) {
-    enemies.add(Enemy(radius: radius, posX: posX, posY: posY, speed: 1));
-    notifyListeners();
+  void startEnemiesPosition() {
+    spawnRate = 150;
+    maxSpeed = 2;
+    enemies = [];
   }
 
   void checkSpawnNewEnemy() {
@@ -27,7 +28,7 @@ class EnemyProvider with ChangeNotifier {
       radius = calculateRandomNum(min: 10, max: 50);
       enemies.add(Enemy(
           radius: radius,
-          speed: calculateRandomNum(min: 1, max: 2),
+          speed: calculateRandomNum(min: maxSpeed / 2, max: maxSpeed),
           posX: -radius,
           posY: calculateRandomNum(min: radius, max: maxY - radius)));
     }
@@ -46,6 +47,8 @@ class EnemyProvider with ChangeNotifier {
     enemies[index].lives--;
     if (enemies[index].lives <= 0) {
       int points = enemies[index].points;
+      spawnRate -= 2;
+      maxSpeed += 0.1;
       removeEnemyAtIndex(index);
       return points;
     }

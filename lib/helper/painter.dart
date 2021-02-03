@@ -20,7 +20,6 @@ class Painter extends CustomPainter {
       ..style = PaintingStyle.fill;
     canvas.drawCircle(
         Offset(_player.posY, _player.posX), _player.radius, paint);
-    // canvas.drawCircle(Offset(_enemy.posY, _enemy.posX), _enemy.radius, paint);
 
     if (_player.bullets.isNotEmpty) {
       _player.bullets.forEach((bullet) {

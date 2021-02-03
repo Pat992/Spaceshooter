@@ -52,6 +52,7 @@ class _GameFieldState extends State<GameField> with TickerProviderStateMixin {
 
     _enemy.maxX = MediaQuery.of(widget._ctx).size.height;
     _enemy.maxY = MediaQuery.of(widget._ctx).size.width;
+    _enemy.startEnemiesPosition();
 
     _controller =
         AnimationController(vsync: this, duration: Duration(hours: 500));
