@@ -15,8 +15,9 @@ class GameField extends StatefulWidget {
   final BuildContext _ctx;
   final Function _reduceLives;
   final Function _forceRedraw;
+  final Function(int) _addScore;
 
-  GameField(this._reduceLives, this._ctx, this._forceRedraw);
+  GameField(this._reduceLives, this._ctx, this._forceRedraw, this._addScore);
 
   @override
   _GameFieldState createState() => _GameFieldState();
@@ -89,6 +90,18 @@ class _GameFieldState extends State<GameField> with TickerProviderStateMixin {
                     _controller.stop();
                     showGameOverDialog();
                   }
+                  if (_player.bullets.isNotEmpty) {
+                    if (_gameHelper.checkForCollision(
+                        obj1Size: _player.bullets[0]['radius'],
+                        obj1X: _player.bullets[0]['posX'],
+                        obj1Y: _player.bullets[0]['posY'],
+                        obj2Size: _enemy.radius,
+                        obj2X: _enemy.posX,
+                        obj2Y: _enemy.posY)) {
+                      _score = widget._addScore(_enemy.onShootedAt());
+                      _player.onHitTarget();
+                    }
+                  }
                 });
               });
     accelerometerStream = accelerometerEvents.listen((event) {
@@ -101,27 +114,6 @@ class _GameFieldState extends State<GameField> with TickerProviderStateMixin {
     accelerometerStream.cancel();
     _controller.dispose();
     super.dispose();
-  }
-
-  void checkForCollision() {
-    double playerStartX = _player.posX - _player.radius;
-    double playerEndX = _player.posX + _player.radius;
-    double playerStartY = _player.posY - _player.radius;
-    double playerEndY = _player.posY + _player.radius;
-
-    double enemyStartX = _enemy.posX - _enemy.radius;
-    double enemyEndX = _enemy.posX + _enemy.radius;
-    double enemyStartY = _enemy.posY - _enemy.radius;
-    double enemyEndY = _enemy.posY + _enemy.radius;
-
-    if (enemyStartY <= playerEndY &&
-        enemyEndY >= playerStartY &&
-        enemyStartX <= playerEndX &&
-        enemyEndX >= playerStartX) {
-      Vibration.vibrate(duration: 100);
-      _isGameOver = widget._reduceLives();
-      _enemy.resetPosition();
-    }
   }
 
   @override

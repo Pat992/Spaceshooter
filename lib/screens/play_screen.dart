@@ -11,11 +11,13 @@ class PlayScreen extends StatefulWidget {
 class _PlayScreenState extends State<PlayScreen> {
   int _lives;
   bool _isGameOver;
+  int _score;
 
   @override
   void initState() {
     super.initState();
     _lives = 3;
+    _score = 0;
     _isGameOver = false;
   }
 
@@ -25,6 +27,13 @@ class _PlayScreenState extends State<PlayScreen> {
       _lives = 3;
       _isGameOver = false;
     });
+  }
+
+  int addScore(int amount) {
+    setState(() {
+      _score += amount;
+    });
+    return _score;
   }
 
   bool loseLife() {
@@ -41,14 +50,14 @@ class _PlayScreenState extends State<PlayScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Punkte: '),
+        title: Text('Score: $_score'),
         actions: [
           _lives == 3 ? Icon(Icons.favorite) : Icon(Icons.favorite_border),
           _lives >= 2 ? Icon(Icons.favorite) : Icon(Icons.favorite_border),
           _lives >= 1 ? Icon(Icons.favorite) : Icon(Icons.favorite_border),
         ],
       ),
-      body: GameField(loseLife, context, forceRedraw),
+      body: GameField(loseLife, context, forceRedraw, addScore),
     );
   }
 }
