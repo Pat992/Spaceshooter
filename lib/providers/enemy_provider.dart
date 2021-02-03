@@ -9,17 +9,20 @@ class EnemyProvider with ChangeNotifier {
   double maxY;
   double radius;
   int lives;
+  int speed;
 
   EnemyProvider() {
     posY = 0;
     posX = 0;
     radius = calculateRandomNum(min: 10, max: 100);
     lives = radius ~/ 10;
+    speed = calculateRandomNum(min: 1, max: 3).toInt();
   }
 
   void resetPosition() {
     radius = calculateRandomNum(min: 10, max: 100);
     posY = calculateRandomNum(min: radius, max: maxY);
+    speed = calculateRandomNum(min: 1, max: 10).toInt();
     lives = radius ~/ 10;
     this.posX = -radius;
   }
@@ -28,7 +31,7 @@ class EnemyProvider with ChangeNotifier {
     if (posX >= maxX) {
       resetPosition();
     } else {
-      posX += distance;
+      posX += speed;
     }
     notifyListeners();
   }

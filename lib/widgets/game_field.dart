@@ -28,7 +28,7 @@ class _GameFieldState extends State<GameField> with TickerProviderStateMixin {
   StreamSubscription<AccelerometerEvent> accelerometerStream;
   Animation<double> _animation;
   AnimationController _controller;
-  PlayerHelper _playerMovement = PlayerHelper();
+  GameHelper _gameHelper = GameHelper();
   double _playerMove;
   bool _isGameOver;
   int _score;
@@ -49,6 +49,7 @@ class _GameFieldState extends State<GameField> with TickerProviderStateMixin {
     _player.posX = MediaQuery.of(widget._ctx).size.height - 200;
     _player.maxY = MediaQuery.of(widget._ctx).size.width - _player.radius;
     _player.maxX = MediaQuery.of(widget._ctx).size.height + _player.radius;
+    _player.bullets = [];
 
     _enemy.posX = -_enemy.radius;
     _enemy.maxX = MediaQuery.of(widget._ctx).size.height + _enemy.radius;
@@ -72,7 +73,17 @@ class _GameFieldState extends State<GameField> with TickerProviderStateMixin {
                   _enemy.moveX(_speed);
                   _player.moveY(_playerMove);
                   _player.moveBullet();
-                  checkForCollision();
+                  if (_gameHelper.checkForCollision(
+                      obj1Size: _player.radius,
+                      obj1X: _player.posX,
+                      obj1Y: _player.posY,
+                      obj2Size: _enemy.radius,
+                      obj2X: _enemy.posX,
+                      obj2Y: _enemy.posY)) {
+                    Vibration.vibrate(duration: 100);
+                    _isGameOver = widget._reduceLives();
+                    _enemy.resetPosition();
+                  }
                   if (_isGameOver) {
                     accelerometerStream.pause();
                     _controller.stop();
@@ -81,7 +92,7 @@ class _GameFieldState extends State<GameField> with TickerProviderStateMixin {
                 });
               });
     accelerometerStream = accelerometerEvents.listen((event) {
-      _playerMove = _playerMovement.movePlayer(event.x);
+      _playerMove = _gameHelper.movePlayer(event.x);
     });
   }
 
@@ -131,6 +142,7 @@ class _GameFieldState extends State<GameField> with TickerProviderStateMixin {
     final _scoreController = TextEditingController();
     return _score > _prefs.getLowestScore()
         ? showDialog(
+            barrierDismissible: false,
             context: context,
             builder: (context) => AlertDialog(
               title: Text('Game Over'),
@@ -160,6 +172,7 @@ class _GameFieldState extends State<GameField> with TickerProviderStateMixin {
             ),
           )
         : showDialog(
+            barrierDismissible: false,
             context: context,
             builder: (context) => AlertDialog(
               title: Text('Game Over'),
