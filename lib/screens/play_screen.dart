@@ -29,11 +29,10 @@ class _PlayScreenState extends State<PlayScreen> {
     });
   }
 
-  int addScore(int amount) {
+  void setScore(int amount) {
     setState(() {
-      _score += amount;
+      _score = amount;
     });
-    return _score;
   }
 
   bool loseLife() {
@@ -57,7 +56,7 @@ class _PlayScreenState extends State<PlayScreen> {
           _lives >= 1 ? Icon(Icons.favorite) : Icon(Icons.favorite_border),
         ],
       ),
-      body: GameField(loseLife, context, forceRedraw, addScore),
+      body: GameField(loseLife, context, forceRedraw, setScore),
     );
   }
 }
