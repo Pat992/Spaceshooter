@@ -8,16 +8,19 @@ class EnemyProvider with ChangeNotifier {
   double maxX;
   double maxY;
   double radius;
+  int lives;
 
   EnemyProvider() {
     posY = 0;
     posX = 0;
     radius = calculateRandomNum(min: 10, max: 100);
+    lives = radius ~/ 10;
   }
 
   void resetPosition() {
     radius = calculateRandomNum(min: 10, max: 100);
     posY = calculateRandomNum(min: radius, max: maxY);
+    lives = radius ~/ 10;
     this.posX = -radius;
   }
 

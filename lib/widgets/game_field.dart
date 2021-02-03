@@ -96,10 +96,10 @@ class _GameFieldState extends State<GameField> with TickerProviderStateMixin {
     double playerStartY = _player.posY - _player.radius;
     double playerEndY = _player.posY + _player.radius;
 
-    double enemyStartX = _enemy.posX - _enemy.radius + (_enemy.radius / 2);
-    double enemyEndX = _enemy.posX + _enemy.radius - (_enemy.radius / 2);
-    double enemyStartY = _enemy.posY - _enemy.radius + (_enemy.radius / 2);
-    double enemyEndY = _enemy.posY + _enemy.radius - (_enemy.radius / 2);
+    double enemyStartX = _enemy.posX - _enemy.radius;
+    double enemyEndX = _enemy.posX + _enemy.radius;
+    double enemyStartY = _enemy.posY - _enemy.radius;
+    double enemyEndY = _enemy.posY + _enemy.radius;
 
     if (enemyStartY <= playerEndY &&
         enemyEndY >= playerStartY &&
