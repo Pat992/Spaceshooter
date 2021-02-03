@@ -14,7 +14,9 @@ class PlayerProvider with ChangeNotifier {
   }
 
   moveY(double distance) {
-    if (posY >= maxY - radius || posY <= 0) return;
+    if (posY >= maxY - radius && distance > 0)
+      return;
+    else if (posY <= 0 + radius && distance < 0) return;
     posY += distance;
     notifyListeners();
   }

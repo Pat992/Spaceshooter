@@ -12,13 +12,14 @@ class _PlayScreenState extends State<PlayScreen> {
   int _lives = 3;
   bool _isGameOver = false;
 
-  void loseLife() {
+  bool loseLife() {
     setState(() {
       --_lives;
       if (_lives <= 0) {
         _isGameOver = true;
       }
     });
+    return _isGameOver;
   }
 
   @override
@@ -32,7 +33,7 @@ class _PlayScreenState extends State<PlayScreen> {
           _lives >= 1 ? Icon(Icons.favorite) : Icon(Icons.favorite_border),
         ],
       ),
-      body: GameField(_isGameOver, loseLife, context),
+      body: GameField(loseLife, context),
     );
   }
 }
