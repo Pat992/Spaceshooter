@@ -1,4 +1,4 @@
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class PreferenceProvider with ChangeNotifier {
@@ -18,9 +18,9 @@ class PreferenceProvider with ChangeNotifier {
 
   get scores => _scores;
 
-  String getLowestScore() => _scores[_scores.length - 1];
+  int getLowestScore() => int.parse(_scores[_scores.length - 1].split(':')[1]);
 
-  Future<void> addScore({String name, int newScore}) {
+  void addScore({String name, int newScore}) {
     for (int i = 0; i < _scores.length; ++i) {
       var entry = _scores[i].split(':');
       if (newScore <= int.parse(entry[1])) {
@@ -28,6 +28,7 @@ class PreferenceProvider with ChangeNotifier {
         break;
       }
     }
+    _prefs.setStringList('scores', _scores);
     notifyListeners();
   }
 }
