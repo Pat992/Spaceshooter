@@ -14,7 +14,7 @@ class PlayerProvider with ChangeNotifier {
     posY = 0;
     maxY = 0;
     maxX = 0;
-    radius = 10;
+    radius = 25;
     shooting = 20;
     bullets = [];
   }

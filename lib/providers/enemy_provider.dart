@@ -1,6 +1,7 @@
 import 'dart:math';
-
 import 'package:flutter/material.dart';
+import 'dart:ui' as UI;
+import 'package:spaceshooter/providers/images_provider.dart';
 
 class EnemyProvider with ChangeNotifier {
   double maxX;
@@ -11,8 +12,9 @@ class EnemyProvider with ChangeNotifier {
   double maxSpeed;
   double spawnRate;
   List<Enemy> enemies;
+  ImagesProvider imagesProvider;
 
-  EnemyProvider() {
+  EnemyProvider(this.imagesProvider) {
     startEnemiesPosition();
   }
 
@@ -23,14 +25,19 @@ class EnemyProvider with ChangeNotifier {
   }
 
   void checkSpawnNewEnemy() {
-    bool isSpawnEnemy = calculateRandomNum(min: 1, max: spawnRate).toInt() == 4;
+    bool isSpawnEnemy =
+        calculateRandomDouble(min: 1, max: spawnRate).toInt() == 4;
     if (enemies.isEmpty || isSpawnEnemy) {
-      radius = calculateRandomNum(min: 10, max: 50);
-      enemies.add(Enemy(
+      radius = calculateRandomInt(min: 10, max: 50).toDouble();
+      enemies.add(
+        Enemy(
           radius: radius,
-          speed: calculateRandomNum(min: maxSpeed / 2, max: maxSpeed),
+          speed: calculateRandomDouble(min: maxSpeed / 2, max: maxSpeed),
           posX: -radius,
-          posY: calculateRandomNum(min: radius, max: maxY - radius)));
+          posY: calculateRandomDouble(min: radius, max: maxY - radius),
+          img: imagesProvider.getRandomEnemyBySize(radius.toInt()),
+        ),
+      );
     }
   }
 
@@ -56,8 +63,6 @@ class EnemyProvider with ChangeNotifier {
   }
 
   void removeEnemyAtIndex(int index) {
-    print(index);
-    print(enemies);
     enemies.removeAt(index);
     notifyListeners();
   }
@@ -69,9 +74,14 @@ class EnemyProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  double calculateRandomNum({double min, double max}) {
+  double calculateRandomDouble({double min, double max}) {
     Random rand = Random();
     return rand.nextDouble() * (max - min) + min;
+  }
+
+  int calculateRandomInt({int min, int max}) {
+    Random rand = Random();
+    return rand.nextInt(max - min) + min;
   }
 }
 
@@ -82,8 +92,9 @@ class Enemy {
   int lives;
   int points;
   double speed;
+  UI.Image img;
 
-  Enemy({this.radius, this.posX, this.posY, this.speed}) {
+  Enemy({this.radius, this.posX, this.posY, this.speed, this.img}) {
     lives = radius ~/ 10;
     points = lives;
   }

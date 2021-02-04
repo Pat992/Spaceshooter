@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:spaceshooter/providers/images_provider.dart';
 import 'package:spaceshooter/screens/play_screen.dart';
 import 'package:spaceshooter/screens/score_screen.dart';
 

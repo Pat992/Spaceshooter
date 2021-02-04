@@ -22,7 +22,6 @@ class _PlayScreenState extends State<PlayScreen> {
   }
 
   void forceRedraw() {
-    print('restart');
     setState(() {
       _lives = 3;
       _isGameOver = false;
