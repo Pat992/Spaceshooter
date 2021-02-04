@@ -1,7 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_particle_background/flutter_particle_background.dart';
-import 'package:provider/provider.dart';
-import 'package:spaceshooter/providers/images_provider.dart';
 import 'package:spaceshooter/screens/play_screen.dart';
 import 'package:spaceshooter/screens/score_screen.dart';
 
@@ -11,17 +8,6 @@ class StartScreen extends StatelessWidget {
     return Scaffold(
       body: Stack(
         children: <Widget>[
-          ParticleBackground(
-            backgroundColor: Colors.black,
-            multiColor: true,
-            numberOfParticles: 50,
-            biggestSize: 10,
-            smallestSize: 1,
-            blur: true,
-            allFilled: true,
-            highestSpeed: 0.5,
-            slowestSpeed: 0.2,
-          ),
           Container(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,

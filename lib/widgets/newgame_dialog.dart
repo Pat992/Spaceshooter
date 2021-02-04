@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:spaceshooter/screens/play_screen.dart';
 
-Future<Widget> newgameDialog(BuildContext context) {
+Future<Widget> newgameDialog(BuildContext context, Function navigation) {
   return showDialog(
     barrierDismissible: false,
     context: context,

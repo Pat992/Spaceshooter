@@ -4,7 +4,8 @@ import 'package:provider/provider.dart';
 import 'package:spaceshooter/providers/preferences_provider.dart';
 import 'package:spaceshooter/screens/score_screen.dart';
 
-Future<Widget> highscoreDialog(BuildContext context, int score) {
+Future<Widget> highscoreDialog(
+    BuildContext context, int score, Function(String) navigate) {
   final _scoreController = TextEditingController();
   PreferenceProvider _prefs =
       Provider.of<PreferenceProvider>(context, listen: false);
@@ -25,8 +26,7 @@ Future<Widget> highscoreDialog(BuildContext context, int score) {
           onPressed: () {
             if (_scoreController.text.trim().isEmpty) return;
             _prefs.addScore(name: _scoreController.text, newScore: score);
-            Navigator.of(context).popUntil((route) => route.isFirst);
-            Navigator.pushNamed(context, ScoreScreen.ROUTE_NAME);
+            navigate(ScoreScreen.ROUTE_NAME);
           },
           icon: Icon(Icons.save),
           label: Text(

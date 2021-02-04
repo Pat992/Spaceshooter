@@ -1,32 +1,127 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
-import 'package:flutter_particle_background/flutter_particle_background.dart';
+import 'package:provider/provider.dart';
+import 'package:sensors/sensors.dart';
+import 'package:spaceshooter/helper/game_helper.dart';
+import 'package:spaceshooter/providers/enemy_provider.dart';
+import 'package:spaceshooter/providers/player_provider.dart';
+import 'package:spaceshooter/providers/preferences_provider.dart';
 import 'package:spaceshooter/widgets/game_field.dart';
+import 'package:spaceshooter/widgets/highscore_dialog.dart';
+import 'package:spaceshooter/widgets/newgame_dialog.dart';
+import 'package:vibration/vibration.dart';
 
 class PlayScreen extends StatefulWidget {
   static const ROUTE_NAME = '/play';
+  BuildContext _ctx;
+
+  PlayScreen(this._ctx);
 
   @override
   _PlayScreenState createState() => _PlayScreenState();
 }
 
-class _PlayScreenState extends State<PlayScreen> {
+class _PlayScreenState extends State<PlayScreen> with TickerProviderStateMixin {
   int _lives;
   bool _isGameOver;
   int _score;
+  double _playerMove;
+  PlayerProvider _player;
+  EnemyProvider _enemy;
+  StreamSubscription<AccelerometerEvent> _accelerometerStream;
+  Animation<double> _animation;
+  AnimationController _controller;
+  GameHelper _gameHelper = GameHelper();
 
   @override
   void initState() {
     super.initState();
     _lives = 3;
     _score = 0;
+    _playerMove = 0;
     _isGameOver = false;
+
+    _gameHelper.initGameObjects(widget._ctx);
+
+    _player = _gameHelper.player;
+    _enemy = _gameHelper.enemy;
+
+    _controller =
+        AnimationController(vsync: this, duration: Duration(hours: 500));
+    _controller.forward();
+
+    _animation =
+        Tween(begin: -50.0, end: MediaQuery.of(widget._ctx).size.height + 50)
+            .animate(_controller)
+              ..addListener(() {
+                _enemy.checkSpawnNewEnemy();
+                _enemy.checkEnemyOverBorder();
+                _enemy.moveEnemies();
+                _player.moveY(_playerMove);
+                _player.moveBullet();
+                if (_isGameOver) {
+                  _accelerometerStream.pause();
+                  _controller.stop();
+                  showGameOverDialog();
+                }
+                for (int i = 0; i < _enemy.enemies.length; ++i) {
+                  bool toRemoveAfterLoop = false;
+                  if (_gameHelper.checkForCollision(
+                      obj1Size: _player.radius,
+                      obj1X: _player.posX,
+                      obj1Y: _player.posY,
+                      obj2Size: _enemy.enemies[i].radius,
+                      obj2X: _enemy.enemies[i].posX,
+                      obj2Y: _enemy.enemies[i].posY)) {
+                    Vibration.vibrate(duration: 400);
+                    _isGameOver = loseLife();
+                    toRemoveAfterLoop = true;
+                  }
+                  if (_player.bullets.isNotEmpty) {
+                    for (int bi = 0; bi < _player.bullets.length; ++bi) {
+                      if (_gameHelper.checkForCollision(
+                          obj1Size: _player.bullets[bi]['radius'],
+                          obj1X: _player.bullets[bi]['posX'],
+                          obj1Y: _player.bullets[bi]['posY'],
+                          obj2Size: _enemy.enemies[i].radius,
+                          obj2X: _enemy.enemies[i].posX,
+                          obj2Y: _enemy.enemies[i].posY)) {
+                        int destroyed = _enemy.onHitEnemy(i);
+                        _player.onHitTarget(bi);
+                        if (destroyed > 0) {
+                          Vibration.vibrate(duration: 50);
+                          _score += destroyed;
+                          setScore(_score);
+                          toRemoveAfterLoop = false;
+                        }
+                      }
+                    }
+                  }
+                  if (toRemoveAfterLoop) {
+                    _enemy.removeEnemyAtIndex(i);
+                  }
+                }
+              });
+    _accelerometerStream = accelerometerEvents.listen((event) {
+      _playerMove = _gameHelper.movePlayer(event.x);
+    });
   }
 
-  void forceRedraw() {
-    setState(() {
-      _lives = 3;
-      _isGameOver = false;
-    });
+  @override
+  void dispose() {
+    _accelerometerStream.cancel();
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void navigateTo(String route) {
+    if (route == '') {
+      Navigator.of(context).pop();
+    } else {
+      Navigator.of(context).popUntil((route) => route.isFirst);
+      Navigator.of(context).pushNamed(route);
+    }
   }
 
   void setScore(int amount) {
@@ -58,21 +153,18 @@ class _PlayScreenState extends State<PlayScreen> {
       ),
       body: Stack(
         children: <Widget>[
-          ParticleBackground(
-            backgroundColor: Colors.black,
-            multiColor: true,
-            particleColor: Colors.blue,
-            numberOfParticles: 50,
-            biggestSize: 10,
-            smallestSize: 1,
-            blur: true,
-            allFilled: true,
-            highestSpeed: 0.5,
-            slowestSpeed: 0.2,
-          ),
-          GameField(loseLife, context, forceRedraw, setScore),
+          GameField(_player),
         ],
       ),
     );
+  }
+
+  Future<Widget> showGameOverDialog() {
+    PreferenceProvider _prefs =
+        Provider.of<PreferenceProvider>(context, listen: false);
+
+    return _score > _prefs.getLowestScore()
+        ? highscoreDialog(context, _score, navigateTo)
+        : newgameDialog(context, navigateTo);
   }
 }
