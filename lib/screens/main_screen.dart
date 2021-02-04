@@ -13,7 +13,8 @@ class MainScreen extends StatelessWidget {
     return MaterialApp(
       title: 'Spaceshooter',
       theme: ThemeData(
-        primarySwatch: Colors.blue,
+        primarySwatch: Colors.amber,
+        //brightness: Brightness.dark,
       ),
       home: StartScreen(),
       routes: {
