@@ -5,6 +5,7 @@ import 'package:sensors/sensors.dart';
 import 'package:spaceshooter/helper/painter.dart';
 import 'package:spaceshooter/helper/game_helper.dart';
 import 'package:spaceshooter/providers/enemy_provider.dart';
+import 'package:spaceshooter/providers/images_provider.dart';
 import 'package:spaceshooter/providers/player_provider.dart';
 import 'package:spaceshooter/providers/preferences_provider.dart';
 import 'package:spaceshooter/screens/play_screen.dart';
@@ -26,6 +27,7 @@ class GameField extends StatefulWidget {
 class _GameFieldState extends State<GameField> with TickerProviderStateMixin {
   PlayerProvider _player;
   EnemyProvider _enemy;
+  ImagesProvider _images;
   StreamSubscription<AccelerometerEvent> accelerometerStream;
   Animation<double> _animation;
   AnimationController _controller;
@@ -43,6 +45,7 @@ class _GameFieldState extends State<GameField> with TickerProviderStateMixin {
 
     _player = Provider.of<PlayerProvider>(widget._ctx, listen: false);
     _enemy = Provider.of<EnemyProvider>(widget._ctx, listen: false);
+    _images = Provider.of<ImagesProvider>(widget._ctx, listen: false);
 
     _player.posY = MediaQuery.of(widget._ctx).size.width / 2;
     _player.posX = MediaQuery.of(widget._ctx).size.height - 200;

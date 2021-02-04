@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:spaceshooter/providers/enemy_provider.dart';
+import 'package:spaceshooter/providers/images_provider.dart';
 import 'package:spaceshooter/providers/player_provider.dart';
 import 'package:spaceshooter/providers/preferences_provider.dart';
 import 'package:spaceshooter/screens/main_screen.dart';
@@ -15,8 +16,13 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (ctx) => PreferenceProvider()),
+        ChangeNotifierProvider(create: (ctx) => ImagesProvider()),
         ChangeNotifierProvider(create: (ctx) => PlayerProvider()),
-        ChangeNotifierProvider(create: (ctx) => EnemyProvider())
+        ChangeNotifierProxyProvider<ImagesProvider, EnemyProvider>(
+          create: (ctx) => EnemyProvider(null),
+          update: (ctx, imagesProvider, enemyProvider) =>
+              EnemyProvider(imagesProvider),
+        )
       ],
       child: MainScreen(),
     );

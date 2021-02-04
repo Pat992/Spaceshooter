@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_particle_background/flutter_particle_background.dart';
 import 'package:spaceshooter/widgets/game_field.dart';
 
 class PlayScreen extends StatefulWidget {
@@ -22,7 +23,6 @@ class _PlayScreenState extends State<PlayScreen> {
   }
 
   void forceRedraw() {
-    print('restart');
     setState(() {
       _lives = 3;
       _isGameOver = false;
@@ -56,7 +56,23 @@ class _PlayScreenState extends State<PlayScreen> {
           _lives >= 1 ? Icon(Icons.favorite) : Icon(Icons.favorite_border),
         ],
       ),
-      body: GameField(loseLife, context, forceRedraw, setScore),
+      body: Stack(
+        children: <Widget>[
+          ParticleBackground(
+            backgroundColor: Colors.black,
+            multiColor: true,
+            particleColor: Colors.blue,
+            numberOfParticles: 50,
+            biggestSize: 10,
+            smallestSize: 1,
+            blur: true,
+            allFilled: true,
+            highestSpeed: 0.5,
+            slowestSpeed: 0.2,
+          ),
+          GameField(loseLife, context, forceRedraw, setScore),
+        ],
+      ),
     );
   }
 }

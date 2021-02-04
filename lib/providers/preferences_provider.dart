@@ -8,7 +8,6 @@ class PreferenceProvider with ChangeNotifier {
   Future<void> initPreferences() async {
     _prefs = await SharedPreferences.getInstance();
     _scores = _prefs.getStringList('scores') ?? [];
-    print(_scores);
 
     if (_scores.isEmpty || _scores.length == 0) {
       for (int i = 0; i < 10; ++i) {
