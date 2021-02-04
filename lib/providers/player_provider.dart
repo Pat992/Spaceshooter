@@ -27,6 +27,10 @@ class PlayerProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  onHitTarget(int index) {
+    bullets.removeAt(index);
+  }
+
   void moveBullet() {
     --shooting;
     if (bullets.isNotEmpty) {

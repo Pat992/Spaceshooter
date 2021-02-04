@@ -8,6 +8,7 @@ class PreferenceProvider with ChangeNotifier {
   Future<void> initPreferences() async {
     _prefs = await SharedPreferences.getInstance();
     _scores = _prefs.getStringList('scores') ?? [];
+    print(_scores);
 
     if (_scores.isEmpty || _scores.length == 0) {
       for (int i = 0; i < 10; ++i) {
@@ -23,8 +24,9 @@ class PreferenceProvider with ChangeNotifier {
   void addScore({String name, int newScore}) {
     for (int i = 0; i < _scores.length; ++i) {
       var entry = _scores[i].split(':');
-      if (newScore <= int.parse(entry[1])) {
-        _scores[i] = '$name:$newScore';
+      if (newScore >= int.parse(entry[1])) {
+        _scores.insert(i, '$name:$newScore');
+        _scores.removeAt(_scores.length - 1);
         break;
       }
     }

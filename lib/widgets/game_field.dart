@@ -15,8 +15,9 @@ class GameField extends StatefulWidget {
   final BuildContext _ctx;
   final Function _reduceLives;
   final Function _forceRedraw;
+  final Function(int) _setScore;
 
-  GameField(this._reduceLives, this._ctx, this._forceRedraw);
+  GameField(this._reduceLives, this._ctx, this._forceRedraw, this._setScore);
 
   @override
   _GameFieldState createState() => _GameFieldState();
@@ -28,18 +29,16 @@ class _GameFieldState extends State<GameField> with TickerProviderStateMixin {
   StreamSubscription<AccelerometerEvent> accelerometerStream;
   Animation<double> _animation;
   AnimationController _controller;
-  PlayerHelper _playerMovement = PlayerHelper();
+  GameHelper _gameHelper = GameHelper();
   double _playerMove;
   bool _isGameOver;
   int _score;
-  double _speed;
 
   @override
   void initState() {
     super.initState();
     _playerMove = 0;
     _score = 0;
-    _speed = 1;
     _isGameOver = false;
 
     _player = Provider.of<PlayerProvider>(widget._ctx, listen: false);
@@ -49,12 +48,11 @@ class _GameFieldState extends State<GameField> with TickerProviderStateMixin {
     _player.posX = MediaQuery.of(widget._ctx).size.height - 200;
     _player.maxY = MediaQuery.of(widget._ctx).size.width - _player.radius;
     _player.maxX = MediaQuery.of(widget._ctx).size.height + _player.radius;
+    _player.bullets = [];
 
-    _enemy.posX = -_enemy.radius;
-    _enemy.maxX = MediaQuery.of(widget._ctx).size.height + _enemy.radius;
-    _enemy.maxY = MediaQuery.of(widget._ctx).size.width - _enemy.radius;
-    _enemy.posY =
-        _enemy.calculateRandomNum(min: _enemy.radius, max: _enemy.maxY);
+    _enemy.maxX = MediaQuery.of(widget._ctx).size.height;
+    _enemy.maxY = MediaQuery.of(widget._ctx).size.width;
+    _enemy.startEnemiesPosition();
 
     _controller =
         AnimationController(vsync: this, duration: Duration(hours: 500));
@@ -69,19 +67,57 @@ class _GameFieldState extends State<GameField> with TickerProviderStateMixin {
             .animate(_controller)
               ..addListener(() {
                 setState(() {
-                  _enemy.moveX(_speed);
+                  _enemy.checkSpawnNewEnemy();
+                  _enemy.checkEnemyOverBorder();
+                  _enemy.moveEnemies();
                   _player.moveY(_playerMove);
                   _player.moveBullet();
-                  checkForCollision();
                   if (_isGameOver) {
                     accelerometerStream.pause();
                     _controller.stop();
                     showGameOverDialog();
                   }
+                  for (int i = 0; i < _enemy.enemies.length; ++i) {
+                    bool toRemoveAfterLoop = false;
+                    if (_gameHelper.checkForCollision(
+                        obj1Size: _player.radius,
+                        obj1X: _player.posX,
+                        obj1Y: _player.posY,
+                        obj2Size: _enemy.enemies[i].radius,
+                        obj2X: _enemy.enemies[i].posX,
+                        obj2Y: _enemy.enemies[i].posY)) {
+                      Vibration.vibrate(duration: 400);
+                      _isGameOver = widget._reduceLives();
+                      toRemoveAfterLoop = true;
+                    }
+                    if (_player.bullets.isNotEmpty) {
+                      for (int bi = 0; bi < _player.bullets.length; ++bi) {
+                        if (_gameHelper.checkForCollision(
+                            obj1Size: _player.bullets[bi]['radius'],
+                            obj1X: _player.bullets[bi]['posX'],
+                            obj1Y: _player.bullets[bi]['posY'],
+                            obj2Size: _enemy.enemies[i].radius,
+                            obj2X: _enemy.enemies[i].posX,
+                            obj2Y: _enemy.enemies[i].posY)) {
+                          int destroyed = _enemy.onHitEnemy(i);
+                          _player.onHitTarget(bi);
+                          if (destroyed > 0) {
+                            Vibration.vibrate(duration: 50);
+                            _score += destroyed;
+                            widget._setScore(_score);
+                            toRemoveAfterLoop = false;
+                          }
+                        }
+                      }
+                    }
+                    if (toRemoveAfterLoop) {
+                      _enemy.removeEnemyAtIndex(i);
+                    }
+                  }
                 });
               });
     accelerometerStream = accelerometerEvents.listen((event) {
-      _playerMove = _playerMovement.movePlayer(event.x);
+      _playerMove = _gameHelper.movePlayer(event.x);
     });
   }
 
@@ -89,28 +125,8 @@ class _GameFieldState extends State<GameField> with TickerProviderStateMixin {
   void dispose() {
     accelerometerStream.cancel();
     _controller.dispose();
+    _animation.removeListener(() {});
     super.dispose();
-  }
-
-  void checkForCollision() {
-    double playerStartX = _player.posX - _player.radius;
-    double playerEndX = _player.posX + _player.radius;
-    double playerStartY = _player.posY - _player.radius;
-    double playerEndY = _player.posY + _player.radius;
-
-    double enemyStartX = _enemy.posX - _enemy.radius;
-    double enemyEndX = _enemy.posX + _enemy.radius;
-    double enemyStartY = _enemy.posY - _enemy.radius;
-    double enemyEndY = _enemy.posY + _enemy.radius;
-
-    if (enemyStartY <= playerEndY &&
-        enemyEndY >= playerStartY &&
-        enemyStartX <= playerEndX &&
-        enemyEndX >= playerStartX) {
-      Vibration.vibrate(duration: 100);
-      _isGameOver = widget._reduceLives();
-      _enemy.resetPosition();
-    }
   }
 
   @override
@@ -131,6 +147,7 @@ class _GameFieldState extends State<GameField> with TickerProviderStateMixin {
     final _scoreController = TextEditingController();
     return _score > _prefs.getLowestScore()
         ? showDialog(
+            barrierDismissible: false,
             context: context,
             builder: (context) => AlertDialog(
               title: Text('Game Over'),
@@ -160,6 +177,7 @@ class _GameFieldState extends State<GameField> with TickerProviderStateMixin {
             ),
           )
         : showDialog(
+            barrierDismissible: false,
             context: context,
             builder: (context) => AlertDialog(
               title: Text('Game Over'),
