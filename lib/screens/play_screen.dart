@@ -32,6 +32,8 @@ class _PlayScreenState extends State<PlayScreen> with TickerProviderStateMixin {
   StreamSubscription<AccelerometerEvent> _accelerometerStream;
   Animation<double> _animation;
   AnimationController _controller;
+  Animation<double> _movementAnimation;
+  AnimationController _movementController;
   GameHelper _gameHelper = GameHelper();
 
   @override
@@ -51,15 +53,14 @@ class _PlayScreenState extends State<PlayScreen> with TickerProviderStateMixin {
         AnimationController(vsync: this, duration: Duration(hours: 500));
     _controller.forward();
 
+    _movementController =
+        AnimationController(vsync: this, duration: Duration(hours: 500));
+    _movementController.forward();
+
     _animation =
         Tween(begin: -50.0, end: MediaQuery.of(widget._ctx).size.height + 50)
             .animate(_controller)
               ..addListener(() {
-                _enemy.checkSpawnNewEnemy();
-                _enemy.checkEnemyOverBorder();
-                _enemy.moveEnemies();
-                _player.moveY(_playerMove);
-                _player.moveBullet();
                 if (_isGameOver) {
                   _accelerometerStream.pause();
                   _controller.stop();
@@ -103,6 +104,16 @@ class _PlayScreenState extends State<PlayScreen> with TickerProviderStateMixin {
                   }
                 }
               });
+    _movementAnimation =
+        Tween(begin: -50.0, end: MediaQuery.of(widget._ctx).size.height + 50)
+            .animate(_movementController)
+              ..addListener(() {
+                _enemy.checkSpawnNewEnemy();
+                _enemy.checkEnemyOverBorder();
+                _enemy.moveEnemies();
+                _player.moveY(_playerMove);
+                _player.moveBullet();
+              });
     _accelerometerStream = accelerometerEvents.listen((event) {
       _playerMove = _gameHelper.movePlayer(event.x);
     });
@@ -112,6 +123,7 @@ class _PlayScreenState extends State<PlayScreen> with TickerProviderStateMixin {
   void dispose() {
     _accelerometerStream.cancel();
     _controller.dispose();
+    _movementController.dispose();
     super.dispose();
   }
 

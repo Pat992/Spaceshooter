@@ -29,7 +29,6 @@ class ImagesProvider with ChangeNotifier {
     UI.Image img;
     for (int i = 0; i < _enemies.length; ++i) {
       if (_enemies[i].size == size) {
-        print('running $i');
         img = _enemies[i].image;
         break;
       }
