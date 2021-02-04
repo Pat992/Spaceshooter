@@ -10,6 +10,8 @@ import 'package:spaceshooter/providers/player_provider.dart';
 import 'package:spaceshooter/providers/preferences_provider.dart';
 import 'package:spaceshooter/screens/play_screen.dart';
 import 'package:spaceshooter/screens/score_screen.dart';
+import 'package:spaceshooter/widgets/highscore_dialog.dart';
+import 'package:spaceshooter/widgets/newgame_dialog.dart';
 import 'package:vibration/vibration.dart';
 
 class GameField extends StatefulWidget {
@@ -147,69 +149,8 @@ class _GameFieldState extends State<GameField> with TickerProviderStateMixin {
     PreferenceProvider _prefs =
         Provider.of<PreferenceProvider>(context, listen: false);
 
-    final _scoreController = TextEditingController();
     return _score > _prefs.getLowestScore()
-        ? showDialog(
-            barrierDismissible: false,
-            context: context,
-            builder: (context) => AlertDialog(
-              title: Text('Game Over'),
-              content: Text('New Score, input your name:'),
-              actions: <Widget>[
-                Container(
-                  width: 200,
-                  child: TextField(
-                    controller: _scoreController,
-                  ),
-                ),
-                TextButton.icon(
-                  onPressed: () {
-                    if (_scoreController.text.trim().isEmpty) return;
-                    _prefs.addScore(
-                        name: _scoreController.text, newScore: _score);
-                    Navigator.of(context).popUntil((route) => route.isFirst);
-                    Navigator.pushNamed(context, ScoreScreen.ROUTE_NAME);
-                  },
-                  icon: Icon(Icons.save),
-                  label: Text(
-                    'Save',
-                    style: TextStyle(color: Colors.black),
-                  ),
-                )
-              ],
-            ),
-          )
-        : showDialog(
-            barrierDismissible: false,
-            context: context,
-            builder: (context) => AlertDialog(
-              title: Text('Game Over'),
-              content: Text('Play Again?'),
-              actions: <Widget>[
-                ElevatedButton.icon(
-                  onPressed: () {
-                    // TODO: not a great way to reload page...
-                    Navigator.of(context).popUntil((route) => route.isFirst);
-                    Navigator.pushNamed(context, PlayScreen.ROUTE_NAME);
-                  },
-                  icon: Icon(Icons.save),
-                  label: Text(
-                    'OK',
-                    style: TextStyle(color: Colors.black),
-                  ),
-                ),
-                TextButton.icon(
-                  onPressed: () {
-                    Navigator.of(context).popUntil((route) => route.isFirst);
-                  },
-                  icon: Icon(Icons.save),
-                  label: Text(
-                    'Cancel',
-                    style: TextStyle(color: Colors.black),
-                  ),
-                )
-              ],
-            ),
-          );
+        ? highscoreDialog(context, _score)
+        : newgameDialog(context);
   }
 }
