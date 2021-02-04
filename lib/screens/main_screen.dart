@@ -13,6 +13,7 @@ class MainScreen extends StatelessWidget {
     Provider.of<PreferenceProvider>(context).initPreferences();
 
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: 'Spaceshooter',
       theme: ThemeData(
         primarySwatch: Colors.amber,
