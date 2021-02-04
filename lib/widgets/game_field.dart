@@ -8,8 +8,6 @@ import 'package:spaceshooter/providers/enemy_provider.dart';
 import 'package:spaceshooter/providers/images_provider.dart';
 import 'package:spaceshooter/providers/player_provider.dart';
 import 'package:spaceshooter/providers/preferences_provider.dart';
-import 'package:spaceshooter/screens/play_screen.dart';
-import 'package:spaceshooter/screens/score_screen.dart';
 import 'package:spaceshooter/widgets/highscore_dialog.dart';
 import 'package:spaceshooter/widgets/newgame_dialog.dart';
 import 'package:vibration/vibration.dart';
@@ -45,19 +43,11 @@ class _GameFieldState extends State<GameField> with TickerProviderStateMixin {
     _score = 0;
     _isGameOver = false;
 
-    _player = Provider.of<PlayerProvider>(widget._ctx, listen: false);
-    _enemy = Provider.of<EnemyProvider>(widget._ctx, listen: false);
-    _images = Provider.of<ImagesProvider>(widget._ctx, listen: false);
+    _gameHelper.initGameObjects(widget._ctx);
 
-    _player.posY = MediaQuery.of(widget._ctx).size.width / 2;
-    _player.posX = MediaQuery.of(widget._ctx).size.height - 200;
-    _player.maxY = MediaQuery.of(widget._ctx).size.width - _player.radius;
-    _player.maxX = MediaQuery.of(widget._ctx).size.height + _player.radius;
-    _player.bullets = [];
-
-    _enemy.maxX = MediaQuery.of(widget._ctx).size.height;
-    _enemy.maxY = MediaQuery.of(widget._ctx).size.width;
-    _enemy.startEnemiesPosition();
+    _player = _gameHelper.player;
+    _enemy = _gameHelper.enemy;
+    _images = _gameHelper.images;
 
     _controller =
         AnimationController(vsync: this, duration: Duration(hours: 500));

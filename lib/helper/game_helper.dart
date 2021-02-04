@@ -1,6 +1,30 @@
-import 'dart:math';
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:spaceshooter/providers/enemy_provider.dart';
+import 'package:spaceshooter/providers/images_provider.dart';
+import 'package:spaceshooter/providers/player_provider.dart';
 
 class GameHelper {
+  PlayerProvider _player;
+  EnemyProvider _enemy;
+  ImagesProvider _images;
+
+  void initGameObjects(BuildContext context) {
+    _player = Provider.of<PlayerProvider>(context, listen: false);
+    _enemy = Provider.of<EnemyProvider>(context, listen: false);
+    _images = Provider.of<ImagesProvider>(context, listen: false);
+
+    _player.posY = MediaQuery.of(context).size.width / 2;
+    _player.posX = MediaQuery.of(context).size.height - 200;
+    _player.maxY = MediaQuery.of(context).size.width - _player.radius;
+    _player.maxX = MediaQuery.of(context).size.height + _player.radius;
+    _player.bullets = [];
+
+    _enemy.maxX = MediaQuery.of(context).size.height;
+    _enemy.maxY = MediaQuery.of(context).size.width;
+    _enemy.startEnemiesPosition();
+  }
+
   double movePlayer(double tilt) {
     if (tilt >= 8) {
       return -10;
@@ -48,4 +72,8 @@ class GameHelper {
     }
     return false;
   }
+
+  get player => _player;
+  get enemy => _enemy;
+  get images => _images;
 }
