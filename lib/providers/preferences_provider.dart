@@ -25,7 +25,8 @@ class PreferenceProvider with ChangeNotifier {
     for (int i = 0; i < _scores.length; ++i) {
       var entry = _scores[i].split(':');
       if (newScore >= int.parse(entry[1])) {
-        _scores[i] = '$name:$newScore';
+        _scores.insert(i, '$name:$newScore');
+        _scores.removeAt(_scores.length - 1);
         break;
       }
     }
