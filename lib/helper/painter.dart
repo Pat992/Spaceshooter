@@ -3,7 +3,6 @@ import 'package:provider/provider.dart';
 import 'package:spaceshooter/providers/enemy_provider.dart';
 import 'package:spaceshooter/providers/images_provider.dart';
 import 'package:spaceshooter/providers/player_provider.dart';
-import 'dart:ui' as UI;
 
 class Painter extends CustomPainter {
   BuildContext _ctx;

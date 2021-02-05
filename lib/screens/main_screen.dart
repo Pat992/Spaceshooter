@@ -13,6 +13,7 @@ class MainScreen extends StatelessWidget {
     Provider.of<PreferenceProvider>(context).initPreferences();
 
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: 'Spaceshooter',
       theme: ThemeData(
         primarySwatch: Colors.amber,
@@ -29,7 +30,7 @@ class MainScreen extends StatelessWidget {
         },
       ),
       routes: {
-        PlayScreen.ROUTE_NAME: (ctx) => PlayScreen(),
+        PlayScreen.ROUTE_NAME: (ctx) => PlayScreen(ctx),
         ScoreScreen.ROUTE_NAME: (ctx) => ScoreScreen()
       },
     );
