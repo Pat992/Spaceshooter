@@ -54,7 +54,7 @@ class EnemyProvider with ChangeNotifier {
     enemies[index].lives--;
     if (enemies[index].lives <= 0) {
       int points = enemies[index].points;
-      spawnRate -= 2;
+      spawnRate > 1 ? spawnRate -= 2 : spawnRate = 1;
       maxSpeed += 0.1;
       removeEnemyAtIndex(index);
       return points;
