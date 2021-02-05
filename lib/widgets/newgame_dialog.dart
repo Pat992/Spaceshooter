@@ -28,7 +28,7 @@ Future<Widget> newgameDialog(BuildContext context, Function navigation) {
           icon: Icon(Icons.cancel_outlined),
           label: Text(
             'Cancel',
-            style: TextStyle(color: Colors.black),
+            style: TextStyle(color: Colors.white),
           ),
         )
       ],

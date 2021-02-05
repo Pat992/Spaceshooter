@@ -31,7 +31,7 @@ Future<Widget> highscoreDialog(
           icon: Icon(Icons.save),
           label: Text(
             'Save',
-            style: TextStyle(color: Colors.black),
+            style: TextStyle(color: Colors.white),
           ),
         )
       ],

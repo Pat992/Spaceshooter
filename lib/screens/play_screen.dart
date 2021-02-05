@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:sensors/sensors.dart';
 import 'package:spaceshooter/helper/game_helper.dart';
 import 'package:spaceshooter/providers/enemy_provider.dart';
+import 'package:spaceshooter/providers/images_provider.dart';
 import 'package:spaceshooter/providers/player_provider.dart';
 import 'package:spaceshooter/providers/preferences_provider.dart';
 import 'package:spaceshooter/widgets/game_field.dart';
@@ -26,9 +27,11 @@ class _PlayScreenState extends State<PlayScreen> with TickerProviderStateMixin {
   int _lives;
   bool _isGameOver;
   int _score;
+  bool _isPaused;
   double _playerMove;
   PlayerProvider _player;
   EnemyProvider _enemy;
+  ImagesProvider _images;
   StreamSubscription<AccelerometerEvent> _accelerometerStream;
   Animation<double> _animation;
   AnimationController _controller;
@@ -42,12 +45,14 @@ class _PlayScreenState extends State<PlayScreen> with TickerProviderStateMixin {
     _lives = 3;
     _score = 0;
     _playerMove = 0;
+    _isPaused = false;
     _isGameOver = false;
 
-    _gameHelper.initGameObjects(widget._ctx);
+    _player = Provider.of<PlayerProvider>(context, listen: false);
+    _enemy = Provider.of<EnemyProvider>(context, listen: false);
+    _images = Provider.of<ImagesProvider>(context, listen: false);
 
-    _player = _gameHelper.player;
-    _enemy = _gameHelper.enemy;
+    _gameHelper.initGameObjects(widget._ctx, _player, _enemy, _images);
 
     _controller =
         AnimationController(vsync: this, duration: Duration(hours: 500));
@@ -66,6 +71,8 @@ class _PlayScreenState extends State<PlayScreen> with TickerProviderStateMixin {
                   _controller.stop();
                   showGameOverDialog();
                 }
+                _enemy.checkSpawnNewEnemy();
+                _enemy.checkEnemyOverBorder();
                 for (int i = 0; i < _enemy.enemies.length; ++i) {
                   bool toRemoveAfterLoop = false;
                   if (_gameHelper.checkForCollision(
@@ -108,8 +115,6 @@ class _PlayScreenState extends State<PlayScreen> with TickerProviderStateMixin {
         Tween(begin: -50.0, end: MediaQuery.of(widget._ctx).size.height + 50)
             .animate(_movementController)
               ..addListener(() {
-                _enemy.checkSpawnNewEnemy();
-                _enemy.checkEnemyOverBorder();
                 _enemy.moveEnemies();
                 _player.moveY(_playerMove);
                 _player.moveBullet();
@@ -125,6 +130,25 @@ class _PlayScreenState extends State<PlayScreen> with TickerProviderStateMixin {
     _controller.dispose();
     _movementController.dispose();
     super.dispose();
+  }
+
+  void togglePause() {
+    setState(() {
+      _isPaused = !_isPaused;
+    });
+    _isPaused ? pauseGame() : resumeGame();
+  }
+
+  void pauseGame() {
+    _accelerometerStream.pause();
+    _controller.stop();
+    _movementController.stop();
+  }
+
+  void resumeGame() {
+    _accelerometerStream.resume();
+    _controller.forward();
+    _movementController.forward();
   }
 
   void navigateTo(String route) {
@@ -158,16 +182,39 @@ class _PlayScreenState extends State<PlayScreen> with TickerProviderStateMixin {
       appBar: AppBar(
         title: Text('Score: $_score'),
         actions: [
-          _lives == 3 ? Icon(Icons.favorite) : Icon(Icons.favorite_border),
-          _lives >= 2 ? Icon(Icons.favorite) : Icon(Icons.favorite_border),
-          _lives >= 1 ? Icon(Icons.favorite) : Icon(Icons.favorite_border),
+          _lives == 3
+              ? Icon(
+                  Icons.favorite,
+                  color: Colors.red,
+                )
+              : Icon(
+                  Icons.favorite_border,
+                  color: Colors.red,
+                ),
+          _lives >= 2
+              ? Icon(
+                  Icons.favorite,
+                  color: Colors.red,
+                )
+              : Icon(
+                  Icons.favorite_border,
+                  color: Colors.red,
+                ),
+          _lives >= 1
+              ? Icon(
+                  Icons.favorite,
+                  color: Colors.red,
+                )
+              : Icon(
+                  Icons.favorite_border,
+                  color: Colors.red,
+                ),
+          IconButton(
+              icon: Icon(_isPaused ? Icons.play_arrow : Icons.pause),
+              onPressed: togglePause),
         ],
       ),
-      body: Stack(
-        children: <Widget>[
-          GameField(_player),
-        ],
-      ),
+      body: GameField(_player),
     );
   }
 

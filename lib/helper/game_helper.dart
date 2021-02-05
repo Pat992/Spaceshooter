@@ -9,10 +9,11 @@ class GameHelper {
   EnemyProvider _enemy;
   ImagesProvider _images;
 
-  void initGameObjects(BuildContext context) {
-    _player = Provider.of<PlayerProvider>(context, listen: false);
-    _enemy = Provider.of<EnemyProvider>(context, listen: false);
-    _images = Provider.of<ImagesProvider>(context, listen: false);
+  void initGameObjects(BuildContext context, PlayerProvider player,
+      EnemyProvider enemy, ImagesProvider images) {
+    _player = player;
+    _enemy = enemy;
+    _images = images;
 
     _player.posY = MediaQuery.of(context).size.width / 2;
     _player.posX = MediaQuery.of(context).size.height - 200;
@@ -72,8 +73,4 @@ class GameHelper {
     }
     return false;
   }
-
-  get player => _player;
-  get enemy => _enemy;
-  get images => _images;
 }

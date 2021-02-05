@@ -14,8 +14,8 @@ class ScoreList extends StatelessWidget {
           return Card(
             child: ListTile(
               title: Text(scoreItem[0]),
-              leading: Text('Platz ${i + 1}'),
-              trailing: Text('${scoreItem[1]} Punkte'),
+              leading: Text('Place ${i + 1}'),
+              trailing: Text('${scoreItem[1]} Points'),
             ),
           );
         },
