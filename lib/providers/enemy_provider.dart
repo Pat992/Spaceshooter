@@ -26,7 +26,7 @@ class EnemyProvider with ChangeNotifier {
 
   void checkSpawnNewEnemy() {
     bool isSpawnEnemy =
-        calculateRandomDouble(min: 1, max: spawnRate).toInt() == 4;
+        calculateRandomDouble(min: 1, max: spawnRate).toInt() == 1;
     if (enemies.isEmpty || isSpawnEnemy) {
       radius = calculateRandomInt(min: 10, max: 50).toDouble();
       enemies.add(
