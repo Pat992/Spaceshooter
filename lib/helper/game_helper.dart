@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:spaceshooter/providers/enemy_provider.dart';
 import 'package:spaceshooter/providers/images_provider.dart';
 import 'package:spaceshooter/providers/player_provider.dart';
@@ -7,13 +6,11 @@ import 'package:spaceshooter/providers/player_provider.dart';
 class GameHelper {
   PlayerProvider _player;
   EnemyProvider _enemy;
-  ImagesProvider _images;
 
   void initGameObjects(BuildContext context, PlayerProvider player,
       EnemyProvider enemy, ImagesProvider images) {
     _player = player;
     _enemy = enemy;
-    _images = images;
 
     _player.posY = MediaQuery.of(context).size.width / 2;
     _player.posX = MediaQuery.of(context).size.height - 200;

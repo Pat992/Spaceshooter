@@ -15,7 +15,7 @@ import 'package:vibration/vibration.dart';
 
 class PlayScreen extends StatefulWidget {
   static const ROUTE_NAME = '/play';
-  BuildContext _ctx;
+  final BuildContext _ctx;
 
   PlayScreen(this._ctx);
 
@@ -33,9 +33,7 @@ class _PlayScreenState extends State<PlayScreen> with TickerProviderStateMixin {
   EnemyProvider _enemy;
   ImagesProvider _images;
   StreamSubscription<AccelerometerEvent> _accelerometerStream;
-  Animation<double> _animation;
   AnimationController _controller;
-  Animation<double> _movementAnimation;
   AnimationController _movementController;
   GameHelper _gameHelper = GameHelper();
 
@@ -62,63 +60,60 @@ class _PlayScreenState extends State<PlayScreen> with TickerProviderStateMixin {
         AnimationController(vsync: this, duration: Duration(hours: 500));
     _movementController.forward();
 
-    _animation =
-        Tween(begin: -50.0, end: MediaQuery.of(widget._ctx).size.height + 50)
-            .animate(_controller)
-              ..addListener(() {
-                if (_isGameOver) {
-                  _accelerometerStream.pause();
-                  _controller.stop();
-                  showGameOverDialog();
-                }
-                _enemy.checkSpawnNewEnemy();
-                _enemy.checkEnemyOverBorder();
-                for (int i = 0; i < _enemy.enemies.length; ++i) {
-                  bool toRemoveAfterLoop = false;
+    Tween(begin: -50.0, end: MediaQuery.of(widget._ctx).size.height + 50)
+        .animate(_controller)
+          ..addListener(() {
+            if (_isGameOver) {
+              pauseGame();
+              showGameOverDialog();
+            }
+            _enemy.checkSpawnNewEnemy();
+            _enemy.checkEnemyOverBorder();
+            for (int i = 0; i < _enemy.enemies.length; ++i) {
+              bool toRemoveAfterLoop = false;
+              if (_gameHelper.checkForCollision(
+                  obj1Size: _player.radius,
+                  obj1X: _player.posX,
+                  obj1Y: _player.posY,
+                  obj2Size: _enemy.enemies[i].radius,
+                  obj2X: _enemy.enemies[i].posX,
+                  obj2Y: _enemy.enemies[i].posY)) {
+                Vibration.vibrate(duration: 400);
+                _isGameOver = loseLife();
+                toRemoveAfterLoop = true;
+              }
+              if (_player.bullets.isNotEmpty) {
+                for (int bi = 0; bi < _player.bullets.length; ++bi) {
                   if (_gameHelper.checkForCollision(
-                      obj1Size: _player.radius,
-                      obj1X: _player.posX,
-                      obj1Y: _player.posY,
+                      obj1Size: _player.bullets[bi]['radius'],
+                      obj1X: _player.bullets[bi]['posX'],
+                      obj1Y: _player.bullets[bi]['posY'],
                       obj2Size: _enemy.enemies[i].radius,
                       obj2X: _enemy.enemies[i].posX,
                       obj2Y: _enemy.enemies[i].posY)) {
-                    Vibration.vibrate(duration: 400);
-                    _isGameOver = loseLife();
-                    toRemoveAfterLoop = true;
-                  }
-                  if (_player.bullets.isNotEmpty) {
-                    for (int bi = 0; bi < _player.bullets.length; ++bi) {
-                      if (_gameHelper.checkForCollision(
-                          obj1Size: _player.bullets[bi]['radius'],
-                          obj1X: _player.bullets[bi]['posX'],
-                          obj1Y: _player.bullets[bi]['posY'],
-                          obj2Size: _enemy.enemies[i].radius,
-                          obj2X: _enemy.enemies[i].posX,
-                          obj2Y: _enemy.enemies[i].posY)) {
-                        int destroyed = _enemy.onHitEnemy(i);
-                        _player.onHitTarget(bi);
-                        if (destroyed > 0) {
-                          Vibration.vibrate(duration: 50);
-                          _score += destroyed;
-                          setScore(_score);
-                          toRemoveAfterLoop = false;
-                        }
-                      }
+                    int destroyed = _enemy.onHitEnemy(i);
+                    _player.onHitTarget(bi);
+                    if (destroyed > 0) {
+                      Vibration.vibrate(duration: 50);
+                      _score += destroyed;
+                      setScore(_score);
+                      toRemoveAfterLoop = false;
                     }
                   }
-                  if (toRemoveAfterLoop) {
-                    _enemy.removeEnemyAtIndex(i);
-                  }
                 }
-              });
-    _movementAnimation =
-        Tween(begin: -50.0, end: MediaQuery.of(widget._ctx).size.height + 50)
-            .animate(_movementController)
-              ..addListener(() {
-                _enemy.moveEnemies();
-                _player.moveY(_playerMove);
-                _player.moveBullet();
-              });
+              }
+              if (toRemoveAfterLoop) {
+                _enemy.removeEnemyAtIndex(i);
+              }
+            }
+          });
+    Tween(begin: -50.0, end: MediaQuery.of(widget._ctx).size.height + 50)
+        .animate(_movementController)
+          ..addListener(() {
+            _enemy.moveEnemies();
+            _player.moveY(_playerMove);
+            _player.moveBullet();
+          });
     _accelerometerStream = accelerometerEvents.listen((event) {
       _playerMove = _gameHelper.movePlayer(event.x);
     });
