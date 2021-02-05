@@ -15,7 +15,7 @@ Future<Widget> newgameDialog(BuildContext context, Function navigation) {
             Navigator.of(context).popUntil((route) => route.isFirst);
             Navigator.pushNamed(context, PlayScreen.ROUTE_NAME);
           },
-          icon: Icon(Icons.save),
+          icon: Icon(Icons.play_arrow),
           label: Text(
             'OK',
             style: TextStyle(color: Colors.black),
@@ -25,7 +25,7 @@ Future<Widget> newgameDialog(BuildContext context, Function navigation) {
           onPressed: () {
             Navigator.of(context).popUntil((route) => route.isFirst);
           },
-          icon: Icon(Icons.save),
+          icon: Icon(Icons.cancel_outlined),
           label: Text(
             'Cancel',
             style: TextStyle(color: Colors.black),
